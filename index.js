@@ -10,7 +10,18 @@
 //   console.log(`Example app listening on port ${port}`)
 // })
 
-let illegalMovesBank = new Map();
+
+
+function generateNewBoard(dimensions) {
+  let board = [];
+  
+  for(let i = 0; i < dimensions; i++) {
+    board.push(
+      new Array(dimensions).fill(-1)
+    );
+  }
+  return board;
+}
 
 
 function nQueenSolutions(dimensions) {
@@ -18,17 +29,15 @@ function nQueenSolutions(dimensions) {
     return [["Q"]];
   }
   let solutions = [];
-  let board = [];
-  
 
   for(let i = 0; i < dimensions; i++) {
-    board.push(new Array(dimensions).fill(-1));
     for(let j = 0; j < dimensions; j++) {
-      let tempBoard = board;
+      let tempBoard = generateNewBoard(dimensions);
       tempBoard[i][j] = 1;
-      let tempSolution = helper(tempBoard, dimensions);
-      solutions.push(tempSolution);
-      illegalMovesBank.clear();
+      let illegalMovesBank = new Map();
+      addNewIllegalMovements(illegalMovesBank, i, j, tempBoard.length);
+      let tempSolution = getSolutions(tempBoard, dimensions, illegalMovesBank);
+      if(tempSolution.length > 0) solutions.push(tempSolution);
     }
   }
 
@@ -36,7 +45,7 @@ function nQueenSolutions(dimensions) {
 
 }
 
-function illegalBMovement(b) {
+function illegalBMovement(illegalMovesBank, b) {
   if(illegalMovesBank.size == 0) { 
     return false;
   }
@@ -49,25 +58,31 @@ function illegalBMovement(b) {
   return false;
 }
 
-function helper(board, queensLeft) {
-  console.log(board);
+function getSolutions(board, queensLeft, illegalMovesBank) {
   for(let n = 0; n < board.length; n++) {
     let currentRow = board[n];
       for(let b = 0; b < board[n].length; b++) {
         let currIllegalBank = illegalMovesBank.get(n) ?? [];
-        if(currIllegalBank.indexOf(b) == -1 && !illegalBMovement(b)) { 
+        if(currIllegalBank.indexOf(b) == -1 && !illegalBMovement(illegalMovesBank, b)) { 
+          //if this is true getSolutions of the same board with a copy of illegalMovesBank where we take this option and another 
+          //getSolutions without this option -- don't decrement queensLeft for the latter -- and concat their solutions at the end 
+
+          // will need to make this dynamic dispatch where I can save past results if the illegalMovesBanks branch off that way they 
+          // dont need to go through the same solutions 
           currentRow[b] = 1;
           queensLeft --;
           addNewIllegalMovements(n,b, board.length);
         }
+        board[n] = currentRow;
       } 
   }
   if(queensLeft == 0) { 
     return board;
   }
+  return [];
 }
 
-function addNewIllegalMovements(row, column, dimensions) {
+function addNewIllegalMovements(illegalMovesBank, row, column, dimensions) {
   if(!illegalMovesBank.has(row)) {
     illegalMovesBank.set(row, []);
   }
@@ -109,4 +124,13 @@ function addNewIllegalMovements(row, column, dimensions) {
 }
 
 //console.log(nQueenSolutions(1));
-nQueenSolutions(2)
+console.log("SOLUTION: ", nQueenSolutions(4));
+
+// Q if queen spot 
+// . if not queen spot
+
+// 1 for 1
+// 0 for 2 
+// 0 for 3
+// 2 solutions for 4
+// 10 solutions for 5
