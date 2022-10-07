@@ -11,7 +11,7 @@ function generateNewBoard(dimensions) {
 
 function nQueenSolutions(dimensions) {
   if (dimensions == 1) {
-    return [["Q"]];
+    return [[1]];
   }
   let solutions = [];
 
@@ -19,7 +19,7 @@ function nQueenSolutions(dimensions) {
     for (let j = 0; j < dimensions; j++) {
       //construct a new dim x dim board 
       let tempBoard = generateNewBoard(dimensions);
-      //set the first queen of this new board to a new spot 
+      //set the first queen of this new board to a new placement 
       tempBoard[i][j] = 1;
       //add all of the illegal movements on this board due to this queens placement
       //for future reference when checking to see if a board spot is valid for a new queen
