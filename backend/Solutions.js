@@ -1,3 +1,7 @@
+const express = require('express')
+const app = express()
+const cors = require('cors');
+
 // generates a new nested board of dim x dim.
 // all non queen spots will be filled with -1
 function generateNewBoard(dimensions) {
@@ -7,42 +11,6 @@ function generateNewBoard(dimensions) {
     board.push(new Array(dimensions).fill(-1));
   }
   return board;
-}
-
-function nQueenSolutions(dimensions) {
-  if (dimensions == 1) {
-    return [[1]];
-  }
-  let solutions = [];
-
-  for (let i = 0; i < dimensions; i++) {
-    for (let j = 0; j < dimensions; j++) {
-      //construct a new dim x dim board 
-      let tempBoard = generateNewBoard(dimensions);
-      //set the first queen of this new board to a new placement 
-      tempBoard[i][j] = 1;
-      //add all of the illegal movements on this board due to this queens placement
-      //for future reference when checking to see if a board spot is valid for a new queen
-      let illegalMovesBank = addNewIllegalMovements(
-        new Map(),
-        i,
-        j,
-        tempBoard.length
-      );
-      //retrieve all of the possible solutions from this starter placement
-      let tempSolution = getSolutions(
-        tempBoard,
-        dimensions - 1,
-        illegalMovesBank,
-        i + 1
-      );
-      //concat all of the solutions from this placement into the main solutions array
-      if (tempSolution.length > 0) {
-        solutions = [...solutions, ...tempSolution];
-      }
-    }
-  }
-  return solutions;
 }
 
 /* 
@@ -72,7 +40,14 @@ function getSolutions(board, queensLeft, illegalMovesBank, i) {
           board.length
         );
         //make a new deep nested copy of the current array board
-        let copyOfBoard = JSON.parse(JSON.stringify(board));
+        let copyOfBoard = [];
+        for(let b = 0; b < board.length; b++) {
+          let newRow = [];
+          for (let r = 0; r < board.length; r++) {
+            newRow.push(board[b][r]);
+          }
+          copyOfBoard.push(newRow);
+        }
         copyOfBoard[row][col] = 1;
 
         //if there are no more queens to place, add this to board to the solutions
@@ -107,9 +82,15 @@ dimensions: The dimensions of the board
 function addNewIllegalMovements(illegalMovesBank, row, column, dimensions) {
 
   //creates a deeply nested copy of the passed in illegalmoves map
-  let newMap = new Map(
-    JSON.parse(JSON.stringify(Array.from(illegalMovesBank)))
-  );
+  let newMap = new Map();
+  for(let key of illegalMovesBank.keys()) {
+    let newArr = [];
+    let oldRow = illegalMovesBank.get(key);
+    for(let j = 0; j < oldRow.length; j++) {
+      newArr.push(oldRow[j]);
+    }
+    newMap.set(key, newArr);
+  }
 
   if (!newMap.has(row)) {
     newMap.set(row, []);
@@ -157,7 +138,6 @@ function addNewIllegalMovements(illegalMovesBank, row, column, dimensions) {
       }
     }
 
-
     tempCol = currCol;
     tempRow = currRow;
 
@@ -190,7 +170,9 @@ function addNewIllegalMovements(illegalMovesBank, row, column, dimensions) {
 }
 
 function testNQueens(n, expected) {
+  console.log( nQueenSolutions(n).length)
   console.log(`N-QUEENS ${n}: `, nQueenSolutions(n).length == expected ? "PASSED" : "FAILED")
+  return nQueenSolutions(n);
 }
 
 testNQueens(1, 1);
@@ -202,3 +184,49 @@ testNQueens(6, 4);
 testNQueens(7, 40);
 testNQueens(8, 92);
 testNQueens(9, 352);
+function nQueenSolutions(dimensions) {
+  if (dimensions == 1) {
+    return [[1]];
+  }
+  let solutions = [];
+
+  for (let i = 0; i < dimensions; i++) {
+    for (let j = 0; j < dimensions; j++) {
+      //construct a new dim x dim board 
+      let tempBoard = generateNewBoard(dimensions);
+      //set the first queen of this new board to a new placement 
+      tempBoard[i][j] = 1;
+      //add all of the illegal movements on this board due to this queens placement
+      //for future reference when checking to see if a board spot is valid for a new queen
+      let illegalMovesBank = addNewIllegalMovements(
+        new Map(),
+        i,
+        j,
+        tempBoard.length
+      );
+      //retrieve all of the possible solutions from this starter placement
+      let tempSolution = getSolutions(
+        tempBoard,
+        dimensions - 1,
+        illegalMovesBank,
+        i + 1
+      );
+      //concat all of the solutions from this placement into the main solutions array
+      if (tempSolution.length > 0) {
+        solutions = [...solutions, ...tempSolution];
+      }
+    }
+  }
+  return solutions;
+}
+
+
+app.use(cors({
+  origin: '*'
+}));
+
+app.get('/', (req, res) => {
+  res.send(testNQueens(4));
+});
+
+app.listen(3002);
