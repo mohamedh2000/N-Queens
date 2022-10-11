@@ -1,13 +1,13 @@
 import React from 'react';
 import Row from './Row.js'
 
-const BoardSolution = ({solutions = []}) => {
+const BoardSolution = ({solution = []}) => {
 
-    console.log(solutions)
+    console.log(solution)
 
     return (
-        <div className="w-full justify-center items-center grid grid-rows-3">
-            {solutions.map((row) => 
+        <div className="w-full">
+            {solution.map((row) => 
                 <Row row={row} />
             )}
         </div>

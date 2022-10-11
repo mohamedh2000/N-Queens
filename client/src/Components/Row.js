@@ -3,12 +3,12 @@ import React from 'react';
 const Row = ({row = []}) => {
 
     const STYLE = {
-        queenStyle: "bg-gray-400 w-full h-full p-5 rounded-2xl",
-        emptyStyle: "w-full h-full p-5 rounded-2xl"
+        queenStyle: "bg-yellow-400 w-full h-full p-5 ",
+        emptyStyle: "bg-gray-400 w-full h-full p-5 "
     }
 
     return (
-        <div className={`grid grid-cols-${row.length}`}> 
+        <div className={`flex flex-row w-full`}> 
             {row.map((val) => {
                 if(val === 1) {
                     return <div className={STYLE.queenStyle}> Q </div>

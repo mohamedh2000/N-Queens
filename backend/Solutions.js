@@ -2,6 +2,10 @@ const express = require('express')
 const app = express()
 const cors = require('cors');
 
+app.use(cors({
+  origin: '*'
+}));
+
 // generates a new nested board of dim x dim.
 // all non queen spots will be filled with -1
 function generateNewBoard(dimensions) {
@@ -170,20 +174,12 @@ function addNewIllegalMovements(illegalMovesBank, row, column, dimensions) {
 }
 
 function testNQueens(n, expected) {
-  console.log( nQueenSolutions(n).length)
-  console.log(`N-QUEENS ${n}: `, nQueenSolutions(n).length == expected ? "PASSED" : "FAILED")
-  return nQueenSolutions(n);
+  let solutions = nQueenSolutions(parseInt(n));
+  console.log(`N-QUEENS ${n}: `, solutions.length == expected ? "PASSED" : "FAILED")
+  return (n == 1 ? [solutions] : solutions);
 }
 
-testNQueens(1, 1);
-testNQueens(2, 0);
-testNQueens(3, 0);
-testNQueens(4, 2);
-testNQueens(5, 10);
-testNQueens(6, 4);
-testNQueens(7, 40);
-testNQueens(8, 92);
-testNQueens(9, 352);
+
 function nQueenSolutions(dimensions) {
   if (dimensions == 1) {
     return [[1]];
@@ -220,13 +216,9 @@ function nQueenSolutions(dimensions) {
   return solutions;
 }
 
-
-app.use(cors({
-  origin: '*'
-}));
-
 app.get('/', (req, res) => {
-  res.send(testNQueens(4));
+  console.log(req.query)
+  res.json(testNQueens(req.query.num));
 });
 
 app.listen(3002);
