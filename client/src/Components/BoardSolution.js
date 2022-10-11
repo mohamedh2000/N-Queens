@@ -6,7 +6,7 @@ const BoardSolution = ({solution = []}) => {
     console.log(solution)
 
     return (
-        <div className="w-full">
+        <div className={solution.length != 1 ? `w-full` : 'p-3 rounded-xl'}>
             {solution.map((row) => 
                 <Row row={row} />
             )}
